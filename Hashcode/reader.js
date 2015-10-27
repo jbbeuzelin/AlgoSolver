@@ -101,14 +101,14 @@ var HashCode2015Solver = (function (_super) {
                 }
                 if (sizeToFit === 0) {
                     for (var j = 0; j < serveToPlace.size; j++) {
-                        this.rows[rowId].values[i + j] = serveToPlace.capacity / serveToPlace.size;
+                        this.rows[rowId].values[i - serveToPlace.size + 1 + j] = serveToPlace.capacity / serveToPlace.size;
                     }
                     placedServers.push({
                         index: serveToPlace.index,
                         capacity: serveToPlace.capacity,
                         size: serveToPlace.size,
                         line: this.rows[rowId].index,
-                        slot: i
+                        slot: i - serveToPlace.size + 1
                     });
                     servers.splice(serverId, 1);
                     serverNotPlaced = false;
@@ -118,6 +118,7 @@ var HashCode2015Solver = (function (_super) {
                         rowId++;
                     }
                     else if (serverId + 1 < servers.length) {
+                        rowId = 0;
                         serverId++;
                     }
                     else {

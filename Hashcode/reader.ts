@@ -140,7 +140,7 @@ class HashCode2015Solver extends BaseSolver {
 				if(sizeToFit === 0) {
 
 					for(let j = 0; j<serveToPlace.size; j++) {
-						this.rows[rowId].values[i+j] = serveToPlace.capacity / serveToPlace.size;
+						this.rows[rowId].values[i-serveToPlace.size+1+j] = serveToPlace.capacity / serveToPlace.size;
 					}
 
 					placedServers.push({
@@ -148,7 +148,7 @@ class HashCode2015Solver extends BaseSolver {
 						capacity: serveToPlace.capacity,
 						size: serveToPlace.size,
 						line: this.rows[rowId].index,
-						slot: i
+						slot: i-serveToPlace.size+1
 					});
 					servers.splice(serverId, 1);
 
@@ -157,6 +157,7 @@ class HashCode2015Solver extends BaseSolver {
 					if(rowId+1 < this.rows.length) {
 						rowId++;
 					} else if(serverId+1 < servers.length) {
+						rowId = 0;
 						serverId++;
 					} else {
 						serverNotPlaced = false;
