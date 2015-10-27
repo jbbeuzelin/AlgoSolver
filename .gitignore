@@ -1,2 +1,5 @@
 # node_modules
 node_modules/*
+Hashcode/.vscode/
+Hashcode/node_modules/
+Hashcode/typings/
