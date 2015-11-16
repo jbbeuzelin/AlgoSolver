@@ -5,31 +5,52 @@ export module solver {
 	class Reader {
 		private linesArray: Array<string>;
 		private file: string;
-	
+
 		constructor(fileName: string) {
 			this.file = fs.readFileSync(fileName, 'utf8');
 			this.linesArray = this.file.split('\n');
 		}
-	
+
 		nextLine(): string {
 			return this.linesArray.shift()
 		}
-	
+
 		getFile(): string {
 			return this.file;
 		}
 	}
-	
-	
+
+	class Writer {
+		private buffer: string;
+
+		constructor(private fileName: string) {
+			// Empty
+		}
+
+		writeToBuffer(content: string, disableAutoLineBreak: boolean) {
+			this.buffer += `${content}${disableAutoLineBreak ? '' : '\n'}`;
+		}
+
+		writeFile() {
+			fs.writeFile(this.fileName, this.buffer, (err) => {
+				if (err) throw err;
+				console.log('It\'s saved!');
+			});
+		}
+	}
+
+
 	export interface IBaseSolver {
 		reader : Reader;
 	}
-	
+
 	export class BaseSolver implements IBaseSolver {
 		public reader : Reader;
-		
-		 constructor(fileName: string) {
-		 	this.reader = new Reader(fileName);
+		public writer : Writer;
+
+		 constructor(inFile: string, outFile: string) {
+		 	this.reader = new Reader(inFile);
+			this.writer = new Writer(outFile);
 		 }
 	}
 }
