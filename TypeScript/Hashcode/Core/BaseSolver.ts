@@ -21,13 +21,13 @@ export module solver {
 	}
 
 	class Writer {
-		private buffer: string;
+		private buffer: string = '';
 
 		constructor(private fileName: string) {
 			// Empty
 		}
 
-		writeToBuffer(content: string, disableAutoLineBreak: boolean) {
+		writeToBuffer(content: string, disableAutoLineBreak: boolean = false) {
 			this.buffer += `${content}${disableAutoLineBreak ? '' : '\n'}`;
 		}
 
@@ -48,7 +48,12 @@ export module solver {
 		public reader : Reader;
 		public writer : Writer;
 
-		 constructor(inFile: string, outFile: string) {
+		 constructor(inFile: string, outFile?: string) {
+			if (!outFile) {
+				outFile = `${inFile}.out`;
+				inFile += `.in`;
+			}
+
 		 	this.reader = new Reader(inFile);
 			this.writer = new Writer(outFile);
 		 }

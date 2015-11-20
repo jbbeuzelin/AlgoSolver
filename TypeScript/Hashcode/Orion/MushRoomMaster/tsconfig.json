@@ -5,7 +5,6 @@
         "sourceMap": false
     },
 	"files": [
-        "BaseSolver.ts",
-		"Helper.ts"
+        "sol.ts"
     ]
 }

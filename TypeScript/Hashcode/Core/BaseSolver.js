@@ -15,9 +15,33 @@ var solver;
         };
         return Reader;
     })();
+    var Writer = (function () {
+        function Writer(fileName) {
+            this.fileName = fileName;
+            this.buffer = '';
+            // Empty
+        }
+        Writer.prototype.writeToBuffer = function (content, disableAutoLineBreak) {
+            if (disableAutoLineBreak === void 0) { disableAutoLineBreak = false; }
+            this.buffer += "" + content + (disableAutoLineBreak ? '' : '\n');
+        };
+        Writer.prototype.writeFile = function () {
+            fs.writeFile(this.fileName, this.buffer, function (err) {
+                if (err)
+                    throw err;
+                console.log('It\'s saved!');
+            });
+        };
+        return Writer;
+    })();
     var BaseSolver = (function () {
-        function BaseSolver(fileName) {
-            this.reader = new Reader(fileName);
+        function BaseSolver(inFile, outFile) {
+            if (!outFile) {
+                outFile = inFile + ".out";
+                inFile += ".in";
+            }
+            this.reader = new Reader(inFile);
+            this.writer = new Writer(outFile);
         }
         return BaseSolver;
     })();

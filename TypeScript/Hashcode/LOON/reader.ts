@@ -36,7 +36,7 @@ class Case {
 	public y: number;
 	public altitude : number;
 	public deltaX: number;
-	public deltaY: number; 	
+	public deltaY: number;
 	constructor (x: number, y: number, a: number){
 		this.x = x;
 		this.y = y;
@@ -49,7 +49,7 @@ class Plan{
 	public nbColonnes: number;
 	public altitude: number;
 	public grid: Array<Array<Case>>;
-	
+
 	public constructor(nbLigne: number,nbColonne: number,altitude: number){
 		this.nbLignes=nbLigne;
 		this.nbColonnes=nbColonne;
@@ -66,15 +66,15 @@ class Plan{
 }
 
 class Globe {
-	public plans: Array<Plan>; 
-	
+	public plans: Array<Plan>;
+
 	constructor(nbLigne: number, nbColonne: number, altitude: number){
 		this.plans = new Array<Plan>();
 		for(var i = 0; i< altitude; i++){
 			this.plans[i] = new Plan(nbLigne, nbColonne, i);
 		}
-	}	
-	
+	}
+
 	/*
 	* Donnne la prochaine case ou le ballon ira
 	*/
@@ -101,8 +101,8 @@ class LoonSolver extends BaseSolver {
 	public startX: number;
 	public startY: number;
 	public targetCases: Array<Case>;
-	
-	
+
+
 	constructor(fileName: string) {
 		super(fileName);
 		this.setVars();
@@ -111,7 +111,7 @@ class LoonSolver extends BaseSolver {
 	}
 
 	solve(): void {
-		
+
 	}
 
 
@@ -119,23 +119,23 @@ class LoonSolver extends BaseSolver {
 		var line = this.reader.nextLine();
 		[this.nbLignes, this.nbColonnes, this.nbAltitudes] = _.map(line.split(' '), _.parseInt);
 		this.globe = new Globe(this.nbLignes,this.nbColonnes,this.nbAltitudes);
-		
+
 		line = this.reader.nextLine();
 		[this.targetNB, this.radius, this.ballonNB, this.turnNB] = _.map(line.split(' '), _.parseInt);
-		
+
 		line = this.reader.nextLine();
 		[this.startY, this.startX] = _.map(line.split(' '), _.parseInt);
-		
+
 		this.targetCases = new Array<Case>();
 		for (var index = 0; index < this.targetNB; index++) {
 			var line = this.reader.nextLine();
 			var x: number;
 			var y: number;
 			[y, x] = _.map(line.split(' '), _.parseInt);
-			
+
 			this.targetCases.push(new Case(x,y,0));
 		}
-		
+
 		for (var iAltitude = 0; iAltitude < this.nbAltitudes; iAltitude++) {
 			for (var iLigne = 0; iLigne < this.nbLignes; iLigne++) {
 				line = this.reader.nextLine();
@@ -149,67 +149,17 @@ class LoonSolver extends BaseSolver {
 						this.globe.plans[iAltitude].grid[iLigne][(index) /2].deltaY = element;
 					}
 				});
-			}		
+			}
 		}
-		 
+
 		console.log(this.globe.plans[0].grid[2][0]);
 		var test = this.globe.GetNextStep(this.globe.plans[0].grid[2][0]);
 		console.log(test);
-		/*[this.R, this.S, this.U, this.P, this.M] = _.map(line.split(' '), _.parseInt);
-
-		for(var i=0;i<this.U;i++) {
-			let splitedLine = _.map(this.reader.nextLine().split(' '), _.parseInt);
-
-			this.unavailableSlots.push({row: splitedLine[0], slot: splitedLine[1]});
-		}
-
-		for(var i=0;i<this.M;i++) {
-			let splitedLine = _.map(this.reader.nextLine().split(' '), _.parseInt);
-
-			this.servers.push({index: i, size: splitedLine[0], capacity: splitedLine[1]});
-		}*/
 	}
-	
-	/*initRows(): void {
-		this.rows = [];
-		for(let i=0; i<this.R; i++) {
-			let unavailableSlotsForThisRow = _.pluck(_.where(this.unavailableSlots, {row: i}), 'slot');
 
-			let row = [];
-			for(let j=0; j<this.S; j++) {
-				if(unavailableSlotsForThisRow.indexOf(j) > -1) {
-					row.push(-1);
-				} else {
-					row.push(0);
-				}
-			}
+	getGridCoverage() {
 
-			this.rows.push({index: i, values: row});
-		}
-	}*/
-
-
-
-
-
-
-	/*writeFile(servers: IServer[]) {
-		var content: string = '';
-
-		for(var i=0; i<this.M; i++) {
-			var server = _.findWhere(servers, {index: i});
-			if(server) {
-				content += `${server.line} ${server.slot} ${server.groupId}\n`;
-			} else {
-				content += 'x\n';
-			}
-		}
-
-		fs.writeFile('dc.out', content, (err) => {
-			if (err) throw err;
-			console.log('It\'s saved!');
-		});
-	}*/
+	}
 }
 
 new LoonSolver('dc.in');
