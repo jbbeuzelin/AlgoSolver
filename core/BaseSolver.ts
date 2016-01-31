@@ -37,6 +37,11 @@ export module solver {
 				console.log('It\'s saved!');
 			});
 		}
+        
+        writeFileSyncAndEmptyBuffer() {
+			fs.writeFileSync(this.fileName, this.buffer);
+            this.buffer = '';
+		}
 	}
 
 

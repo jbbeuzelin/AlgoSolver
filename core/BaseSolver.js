@@ -32,6 +32,10 @@ var solver;
                 console.log('It\'s saved!');
             });
         };
+        Writer.prototype.writeFileSyncAndEmptyBuffer = function () {
+            fs.writeFileSync(this.fileName, this.buffer);
+            this.buffer = '';
+        };
         return Writer;
     })();
     var BaseSolver = (function () {
