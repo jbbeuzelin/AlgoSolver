@@ -12,17 +12,27 @@ class test extends solver.BaseSolver {
 
 	constructor(fileName: string) {
 		super(fileName);
-
-		var testCases = _.parseInt(this.reader.nextLine());
-		for(let i=0; i<testCases; i++) {
-			this.solveCase(i);
-		}
-
+        
+        let numbers = [];
+		numbers = _.map(this.reader.nextLine().split(' '), _.parseInt);
+        
+        let state = [];
+        state[0] = 1;
+        
+        for (let i=1; i<numbers.length; i++) {
+            state[i] = 1;
+            for (let j=0; j<i; j++) {
+                if (numbers[j] <= numbers[i] && state[j] + 1 > state[i]) {
+                    state[i] = state[j] + 1;
+                }
+            }
+        }
+        
+        let maxLength = _.max(state);
+        console.log(maxLength);
+        
+		this.writer.writeToBuffer('1');        
 		this.writer.writeFile();
-	}
-
-	solveCase(testCase: number): void {
-		this.writer.writeToBuffer(`Case #${testCase+1}: ${testCase}`);
 	}
 }
 

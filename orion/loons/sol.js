@@ -13,9 +13,12 @@ var Loons = (function (_super) {
     function Loons(fileName) {
         _super.call(this, fileName);
         this.result = 0;
+        this.cache = {};
         this.readFile();
         while (true) {
             this.initBalloons();
+            this.genererLes81Millions();
+            break;
             var resulttemp = 0;
             //resulttemp = this.randomSolve();
             ////console.log("number death : " +_.countBy(this.balloons, (b)=> b.isDead));
@@ -23,10 +26,9 @@ var Loons = (function (_super) {
             if (resulttemp > this.result) {
                 this.result = resulttemp;
                 this.writeLine();
-                console.log(resulttemp);
+                console.log("Best score", resulttemp);
                 this.writer.writeFileSyncAndEmptyBuffer();
             }
-            break;
         }
     }
     Loons.prototype.solveCase = function (testCase) {
@@ -182,17 +184,6 @@ var Loons = (function (_super) {
     };
     Loons.prototype.solveBaloonParBaloonParMorceau = function () {
         var _this = this;
-        /*console.log(this.obtenirCheminPourCase(this.balloons[0].currentCase,this.balloons[0].altitude,1));
-        console.log(this.obtenirCheminPourCase(this.balloons[0].currentCase,this.balloons[0].altitude,2));
-        console.log(this.obtenirCheminPourCase(this.balloons[0].currentCase,this.balloons[0].altitude,3));
-        console.log(this.obtenirCheminPourCase(this.balloons[0].currentCase,this.balloons[0].altitude,4));
-        console.log(this.obtenirCheminPourCase(this.balloons[0].currentCase,this.balloons[0].altitude,5));
-        console.log(this.obtenirCheminPourCase(this.balloons[0].currentCase,this.balloons[0].altitude,6));
-        console.log(this.obtenirCheminPourCase(this.balloons[0].currentCase,this.balloons[0].altitude,7));
-        console.log(this.obtenirCheminPourCase(this.balloons[0].currentCase,this.balloons[0].altitude,8));
-        console.log(this.obtenirCheminPourCase(this.balloons[0].currentCase,this.balloons[0].altitude,9));
-        console.log(this.obtenirCheminPourCase(this.balloons[0].currentCase,this.balloons[0].altitude,10));
-        console.log(this.obtenirCheminPourCase(this.balloons[0].currentCase,this.balloons[0].altitude,13));*/
         //throw new Error();
         var score = 0;
         var reinit = function () {
@@ -205,11 +196,14 @@ var Loons = (function (_super) {
             }
             return caseCibleToucheeAInstantT;
         };
-        for (var i = 0; i < this.T; i++) {
-            var caseCibleToucheeAInstantT = reinit();
+        var nb = 8;
+        var caseCibleToucheeAInstantT = reinit();
+        //console.log("T=",this.T);
+        for (var i = 0; i < this.T; i += nb) {
+            //console.log("Tour",i);
             for (var j = 0; j < this.B; j++) {
                 if (!this.balloons[j].isDead) {
-                    var chemin = this.obtenirCheminPourCase(this.balloons[j].currentCase, this.balloons[j].altitude, 7, i, caseCibleToucheeAInstantT);
+                    var chemin = this.obtenirCheminPourCase(this.balloons[j].currentCase, this.balloons[j].altitude, nb, i, caseCibleToucheeAInstantT);
                     var parcours = chemin.parcours;
                     var casesFutures = [{ case: this.balloons[j].currentCase, altitude: this.balloons[j].altitude }];
                     //console.log("Parcours pour ballon",j,parcours);
@@ -242,14 +236,25 @@ var Loons = (function (_super) {
                     }
                     
                     console.log("Nb1",nb1);*/
-                    this.balloons[j].changeAltitude(chemin.chemin, this);
+                    for (var _i = 0; _i < parcours.length; _i++) {
+                        var unChangement = parcours[_i];
+                        this.balloons[j].changeAltitude(unChangement, this);
+                    }
                 }
             }
-            console.log("Score " + score);
-            //console.log("Position courante",this.balloons[0].currentCase,this.balloons[0].altitude);
-            score += this.getScore();
         }
-        return score;
+        return this.getScoreDepuisContexte(caseCibleToucheeAInstantT);
+    };
+    Loons.prototype.getScoreDepuisContexte = function (caseCibleToucheeAInstantT) {
+        var nb1 = 0;
+        for (var i = 0; i < this.T; i++) {
+            for (var j = 0; j < this.cibles.length; j++) {
+                if (caseCibleToucheeAInstantT[i][j] == 1) {
+                    nb1++;
+                }
+            }
+        }
+        return nb1;
     };
     Loons.prototype.cheminPossiblePourCase = function (uneCase, uneAltitude) {
         if (!uneCase) {
@@ -266,6 +271,18 @@ var Loons = (function (_super) {
             cheminsPossibles.push(0);
         }
         return cheminsPossibles;
+    };
+    Loons.prototype.cheminPossiblePourCaseAvecAltitude = function (uneCase) {
+        if (!uneCase) {
+            return [];
+        }
+        var clef = "cheminPossible" + uneCase.r + "-" + uneCase.c + "-" + uneCase.a;
+        if (this.cache[clef]) {
+            return this.cache[clef];
+        }
+        var retour = this.cheminPossiblePourCase({ r: uneCase.r, c: uneCase.c }, uneCase.a);
+        this.cache[clef] = retour;
+        return retour;
     };
     Loons.prototype.obtenirCheminPourCase = function (uneCase, uneAltitude, profondeur, instantDeLaSimulation, caseCibleToucheeAInstantT) {
         var _this = this;
@@ -310,15 +327,84 @@ var Loons = (function (_super) {
         if (uneAltitude == 0) {
             return uneCase;
         }
+        if (uneCase == undefined) {
+            return undefined;
+        }
+        if (this.cache[uneCase.r + "-" + uneCase.c + "-" + uneAltitude]) {
+            return this.cache[uneCase.r + "-" + uneCase.c + "-" + uneAltitude];
+        }
         var leVent = this.map[uneAltitude - 1][uneCase.r][uneCase.c];
         var caseRetour = {
             r: uneCase.r + leVent.vr,
             c: ((uneCase.c + leVent.vc) + this.C) % this.C
         };
         if (caseRetour.r < 0 || caseRetour.r >= this.R) {
-            return null;
+            this.cache[uneCase.r + "-" + uneCase.c + "-" + uneAltitude] = undefined;
+            return undefined;
         }
+        this.cache[uneCase.r + "-" + uneCase.c + "-" + uneAltitude] = caseRetour;
         return caseRetour;
+    };
+    Loons.prototype.nextCaseAvecAltitude = function (uneCase) {
+        var caseRetour = this.nextCase(uneCase, uneCase.a);
+        if (caseRetour == undefined) {
+            return undefined;
+        }
+        return {
+            r: caseRetour.r,
+            c: caseRetour.c,
+            a: uneCase.a
+        };
+    };
+    Loons.prototype.genererTableau4Dimensions = function () {
+        var retour = [];
+        for (var i = 0; i < this.T; i++) {
+            retour.push([]);
+            for (var j = 0; j < this.R; j++) {
+                retour[i].push([]);
+                for (var k = 0; k < this.C; k++) {
+                    retour[i][j].push([]);
+                    for (var l = 0; l <= this.A; l++) {
+                        retour[i][j][k].push(false);
+                    }
+                }
+            }
+        }
+        return retour;
+    };
+    Loons.prototype.genererLes81Millions = function () {
+        this.matrice = this.genererTableau4Dimensions();
+        console.log("Matrice vierge créée");
+        var tableau = [{
+                r: this.startPoint.r,
+                c: this.startPoint.c,
+                a: 0,
+            }];
+        for (var i = 0; i < this.T; i++) {
+            console.log("T courant", i);
+            var positionsFutures = [];
+            var positionsFuturesObjet = {};
+            for (var _i = 0; _i < tableau.length; _i++) {
+                var element = tableau[_i];
+                var possibilites = this.cheminPossiblePourCaseAvecAltitude(element);
+                for (var _a = 0; _a < possibilites.length; _a++) {
+                    var possibilite = possibilites[_a];
+                    var nextCase = this.nextCaseAvecAltitude({ r: element.r, c: element.c, a: element.a + possibilite });
+                    if (nextCase != undefined && !(positionsFuturesObjet[nextCase.r + "-" + nextCase.c + "-" + nextCase.a])) {
+                        positionsFutures.push(nextCase);
+                        positionsFuturesObjet[nextCase.r + "-" + nextCase.c + "-" + nextCase.a] = true;
+                    }
+                }
+            }
+            tableau = positionsFutures;
+            console.log(tableau.length);
+            for (var _b = 0; _b < tableau.length; _b++) {
+                var position = tableau[_b];
+                this.matrice[i][position.r][position.c][position.a] = true;
+            }
+        }
+    };
+    Loons.prototype.dynamicProgrammingSolve = function () {
     };
     return Loons;
 })(BaseSolver_1.solver.BaseSolver);
@@ -326,6 +412,11 @@ var Case = (function () {
     function Case() {
     }
     return Case;
+})();
+var CaseAvecAltitude = (function () {
+    function CaseAvecAltitude() {
+    }
+    return CaseAvecAltitude;
 })();
 var Chemin = (function () {
     function Chemin() {
