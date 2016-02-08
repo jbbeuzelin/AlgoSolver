@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/jbbeuzelin/AlgoSolver#readme",
   "dependencies": {
+    "BigInt": "^5.5.3",
     "lodash": "^3.10.1"
   }
 }
