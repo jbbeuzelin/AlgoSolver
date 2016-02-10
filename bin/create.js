@@ -77,6 +77,34 @@ function create() {
 			if (err) return console.log(err);
 		});
 	});
+	
+	if (!fs.existsSync(path.join('../', dir, projectName, '.vscode'))){
+			fs.mkdirSync(path.join('../', dir, projectName, '.vscode'));
+	}
+	
+	// tasks.json
+	fs.readFile('./base/.vscode/tasks.json', 'utf8', function (err, data) {
+		if (err) {
+			return console.log(err);
+		}
+
+		var destPath = path.join(__dirname, '../', dir, projectName, '.vscode/tasks.json');
+		fs.writeFile(destPath, data, function (err) {
+			if (err) return console.log(err);
+		});
+	});
+	
+	// launch.json
+	fs.readFile('./base/.vscode/launch.json', 'utf8', function (err, data) {
+		if (err) {
+			return console.log(err);
+		}
+
+		var destPath = path.join(__dirname, '../', dir, projectName, '.vscode/launch.json');
+		fs.writeFile(destPath, data, function (err) {
+			if (err) return console.log(err);
+		});
+	});
 }
 
 function help() {
