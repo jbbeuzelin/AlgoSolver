@@ -35,8 +35,6 @@ class Hashcode2016round1 extends solver.BaseSolver {
 
 		this.readFile();
 
-
-		console.log(this.choosenCustomers(1, [1, 2, 3, 4, 5], 0));
 		this.writer.writeFile();
 	}
 
@@ -67,17 +65,19 @@ class Hashcode2016round1 extends solver.BaseSolver {
 	}
 
 	// On passe le warehouse et les cliuents possibles + la charge du drone actulle
-	choosenCustomers(wareHouse: number, possibleCustomers: Array<number>, droneLoad: number = 0): Array<number> {
-		/*let sortedCustomers = _.sortBy(possibleCustomers, customer => {
-			return this.distance(this.positionsW[wareHouse], this.positionsC[customer]);
-		});*/
-
-		// Du plus petit au plus grand
+	choosenCustomers(wareHouse: number, possibleCustomers: Array<number>): Array<number> {
+		// Du plus près au plus loin
 		let sortedCustomers = _.sortBy(possibleCustomers, customer => {
-			return this.numberOfOrderedProductsByC[customer];
+			return this.distance(this.positionsW[wareHouse], this.positionsC[customer]);
 		});
 
+		// Du plus petit au plus grand
+		/*let sortedCustomers = _.sortBy(possibleCustomers, customer => {
+			return this.numberOfOrderedProductsByC[customer];
+		});*/
+
 		var choosenCustomers = [];
+		let weightCustomers = [];
 		for (let i=0; i<sortedCustomers.length; i++) {
 			let toAdd = 0;
 			let customerId = sortedCustomers[i];
@@ -85,19 +85,21 @@ class Hashcode2016round1 extends solver.BaseSolver {
 
 				let productId = this.orderedProductsByC[customerId][j];
 				toAdd += this.productsWeights[productId];
-				console.log('add', toAdd)
 			}
 
 			// Si c'est trop lourd on arrete tout de suite
 			// TODO essayer 2 / 3 cas de plus
-			if (droneLoad + toAdd > this.maximumLoad) {
+			/*if (droneLoad + toAdd > this.maximumLoad) {
 				break;
-			}
+			}*/
 
-			droneLoad += toAdd;
-			choosenCustomers.push(sortedCustomers[i]);
+			weightCustomers.push([sortedCustomers[i], toAdd]);
 		}
 
+		weightCustomers = _.sortBy(weightCustomers, wc => wc[1]);
+		choosenCustomers = _.map(weightCustomers, wc => wc[0]);
+
+		// Renvoie la liste des ids des customers triée du plus petit poids restant au plus granbd poids restant
 		return choosenCustomers;
 	}
 
@@ -128,7 +130,7 @@ class Hashcode2016round1 extends solver.BaseSolver {
 	wait(drone: number, time: number) {
 		this.writer.writeToBuffer(`${drone} W ${time}`);
 	}
-    
+
     getWarehousePossibleCustomers(unIndexDeWarehouse){
         let produitsDispo = this.productAvailableByW[unIndexDeWarehouse];
         let indexesOk = [];
