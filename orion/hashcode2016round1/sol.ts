@@ -118,6 +118,27 @@ class Hashcode2016round1 extends solver.BaseSolver {
 	wait(drone: number, time: number) {
 		this.writer.writeToBuffer(`${drone} W ${time}`);
 	}
+    
+    getWarehousePossibleCustomers(unIndexDeWarehouse){
+        let produitsDispo = this.productAvailableByW[unIndexDeWarehouse];
+        let indexesOk = [];
+        for(let i=0; i < this.C; i++){
+            let ok = true;
+            let contenuCommande = this.orderedProductsByC[i];
+            let nbChaqueElementVoulus = _.groupBy(contenuCommande,function(num){ return (num);});
+            for(let unTypeDeProduit in nbChaqueElementVoulus){
+                if(produitsDispo[unTypeDeProduit] < nbChaqueElementVoulus[unTypeDeProduit].length){
+                    ok = false;
+                    break;
+                }
+            }
+            //Si on peut satisfaire la commande i, alors on ajoute cette commande à l'ensemble des commandes satisfables par le DW.
+            if(ok){
+                indexesOk.push(i);
+            }
+        }
+        return indexesOk;
+    }
 
 }
 
