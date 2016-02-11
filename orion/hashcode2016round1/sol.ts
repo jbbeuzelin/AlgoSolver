@@ -35,6 +35,8 @@ class Hashcode2016round1 extends solver.BaseSolver {
 
 		this.readFile();
 
+		this.solutionParis();
+
 		this.writer.writeFile();
 	}
 
@@ -96,7 +98,8 @@ class Hashcode2016round1 extends solver.BaseSolver {
 			weightCustomers.push([sortedCustomers[i], toAdd]);
 		}
 
-		weightCustomers = _.sortBy(weightCustomers, wc => wc[1]);
+		weightCustomers = _.sortBy(weightCustomers, wc =>
+		wc[1]);
 		choosenCustomers = _.map(weightCustomers, wc => wc[0]);
 
 		// Renvoie la liste des ids des customers triée du plus petit poids restant au plus granbd poids restant
@@ -151,6 +154,64 @@ class Hashcode2016round1 extends solver.BaseSolver {
         }
         return indexesOk;
     }
+
+	solutionParis() {
+		let positionCourante = this.positionsW[0];
+        let tempsTotal = 0;
+        let dwCourant = 0;
+        let chargeCourante = 0;
+
+		for (let i=0; i<this.nbDrones; i++) {
+			let possibleCustomersFull = this.getWarehousePossibleCustomers(dwCourant);
+			let orderedCustomers = this.choosenCustomers(dwCourant, possibleCustomersFull);
+
+			for (let j=0; j<orderedCustomers.length; j++) {
+				var customerId = orderedCustomers[j];
+				let customerItems = this.orderedProductsByC[customerId];
+				let charged = [];
+				chargeCourante = 0;
+				let length = customerItems.length;
+				for (let k=0; k<length; k++) {
+
+					let productId = customerItems[k];
+					chargeCourante += this.productsWeights[productId];
+
+					if (chargeCourante > this.maximumLoad) {
+						chargeCourante -= this.productsWeights[productId];
+						break;
+					} else {
+						charged.push(productId);
+						this.productAvailableByW[dwCourant][productId]--;
+						customerItems.splice(k, 1);
+						length--;
+					}
+				}
+
+				if (charged) {
+					let groups = _.groupBy(charged);
+
+					tempsTotal += 2 * Object.keys(groups).length;
+					tempsTotal += Math.ceil(Math.sqrt(this.distance(this.positionsW[dwCourant], this.positionsC[customerId]))) * 2;
+
+					if (tempsTotal > this.deadline) {
+						break;
+					}
+
+					this.loadProductsInstructions(charged, dwCourant, i);
+
+					let keys = Object.keys(groups);
+					for (let g=0; g<keys.length; g++) {
+						this.deliverProduct(i, customerId, groups[keys[g]][0], groups[keys[g]].length);
+					}
+
+					j--;
+
+				}
+			}
+
+			tempsTotal = 0;
+		}
+	}
 
 }
 
