@@ -165,7 +165,8 @@ class Hashcode2016round1 extends solver.BaseSolver {
 			let possibleCustomersFull = this.getWarehousePossibleCustomers(dwCourant);
 			let orderedCustomers = this.choosenCustomers(dwCourant, possibleCustomersFull);
 
-			for (let j=0; j<orderedCustomers.length; j++) {
+			let customersLength = orderedCustomers.length
+			for (let j=0; j<customersLength; j++) {
 				var customerId = orderedCustomers[j];
 				let customerItems = this.orderedProductsByC[customerId];
 				let charged = [];
@@ -184,7 +185,8 @@ class Hashcode2016round1 extends solver.BaseSolver {
 
 					possibleCustomersFull = this.getWarehousePossibleCustomers(dwCourant);
 					orderedCustomers = this.choosenCustomers(dwCourant, possibleCustomersFull);
-					j++;
+					customersLength = orderedCustomers.length;
+					j = 0;
 					console.log(i)
 				}
 
