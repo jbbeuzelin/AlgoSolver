@@ -35,6 +35,8 @@ class Hashcode2016round1 extends solver.BaseSolver {
 
 		this.readFile();
 
+
+		console.log(this.choosenCustomers(1, [1, 2, 3, 4, 5], 0));
 		this.writer.writeFile();
 	}
 
@@ -66,16 +68,24 @@ class Hashcode2016round1 extends solver.BaseSolver {
 
 	// On passe le warehouse et les cliuents possibles + la charge du drone actulle
 	choosenCustomers(wareHouse: number, possibleCustomers: Array<number>, droneLoad: number = 0): Array<number> {
-		let sortedCustomers = _.sortBy(possibleCustomers, customer => {
+		/*let sortedCustomers = _.sortBy(possibleCustomers, customer => {
 			return this.distance(this.positionsW[wareHouse], this.positionsC[customer]);
+		});*/
+
+		// Du plus petit au plus grand
+		let sortedCustomers = _.sortBy(possibleCustomers, customer => {
+			return this.numberOfOrderedProductsByC[customer];
 		});
 
 		var choosenCustomers = [];
-		for (let i=0; i<possibleCustomers.length; i++) {
+		for (let i=0; i<sortedCustomers.length; i++) {
 			let toAdd = 0;
 			let customerId = sortedCustomers[i];
 			for (let j=0; j<this.numberOfOrderedProductsByC[customerId]; j++) {
-				toAdd += this.orderedProductsByC[customerId][j];
+
+				let productId = this.orderedProductsByC[customerId][j];
+				toAdd += this.productsWeights[productId];
+				console.log('add', toAdd)
 			}
 
 			// Si c'est trop lourd on arrete tout de suite
