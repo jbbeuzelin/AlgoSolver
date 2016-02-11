@@ -105,18 +105,23 @@ var test = (function (_super) {
     };
     test.prototype.jeMetsDesCarresEtDesLignesEnPermettantDesErreurs = function () {
         var tailleMaximum = 300;
-        for (var k = tailleMaximum; k >= 0; k--) {
-            console.log("Analyse pour taille = ", k);
-            for (var i = 0; i < this.R; i++) {
-                for (var j = 0; j < this.C; j++) {
-                    if (k <= 15) {
-                        //Carré
-                        this.gererCarre(k, i, j);
+        for (var tour = 0; tour < 2; tour++) {
+            for (var k = tailleMaximum; k >= 0; k--) {
+                console.log("Analyse pour taille = ", k);
+                for (var i = 0; i < this.R; i++) {
+                    for (var j = 0; j < this.C; j++) {
+                        //On fait un premier tour pour les carrés intéressants.
+                        if (k <= 15 && ((tour == 0 && k >= 6) || tour == 1)) {
+                            //Carré
+                            this.gererCarre(k, i, j);
+                        }
+                        if (tour > 0) {
+                            //Ligne verticale
+                            this.gererLigne(k, 0, i, j);
+                            //Ligne horizontale
+                            this.gererLigne(0, k, i, j);
+                        }
                     }
-                    //Ligne verticale
-                    this.gererLigne(k, 0, i, j);
-                    //Ligne horizontale
-                    this.gererLigne(0, k, i, j);
                 }
             }
         }
@@ -195,10 +200,10 @@ var test = (function (_super) {
         if (k == 0) {
             return nb1 == 1;
         }
-        var premiersK = [1, 2, 3, 5];
+        var premiersK = [0, 0, 0, 0];
         //On a forcément au moins un 0. Donc une fausse note.
         var nbCases = Math.pow(2 * k + 1, 2);
-        if (nb1 > nb0 && (nb1 > nbCases * 0.4) && ((k < premiersK.length && nb0 <= premiersK[k]) || (nb0 < (nbCases * 0.08)))) {
+        if (nb1 > nb0 && (nb1 > nbCases * 0.7) && ((k < premiersK.length && nb0 <= premiersK[k]) || (nb0 < (nbCases * 0.01)))) {
             return true;
         }
         return false;
@@ -214,10 +219,10 @@ var test = (function (_super) {
         //Si k = 0, c'est déjà traité, et on ne fait qqch que si la case est évidemment à colorer
         //Si k = 1, alors il y a deux cases en question. Franchement, si 
         //Si k = 2, on accepte qu'il y ait une case qui cloche. Mais bien sûr, il faut toujours 
-        var premiersK = [0, 0, 0, 1, 1];
+        var premiersK = [0, 0, 0, 0, 0];
         //On a forcément au moins un 0. Donc une fausse note.
         var nbCases = k + 1;
-        if (nb1 > nb0 && (nb1 > nbCases * 0.9) && ((k < premiersK.length && nb0 <= premiersK[k]) || (nb0 < (nbCases * 0.00)))) {
+        if (nb1 > nb0 && (nb1 > nbCases * 0.7) && ((k < premiersK.length && nb0 <= premiersK[k]) || (nb0 < (nbCases * 0.00)))) {
             return true;
         }
         return false;
