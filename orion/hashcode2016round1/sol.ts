@@ -173,9 +173,15 @@ class Hashcode2016round1 extends solver.BaseSolver {
 				let length = customerItems.length;
 
 				if (length === 0) {
+					tempsTotal -= Math.ceil(Math.sqrt(this.distance(this.positionsW[dwCourant], this.positionsC[customerId])));
+
 					let wh = this.getCloserWarehouse(this.positionsC[customerId]);
 					dwCourant = wh;
 					tempsTotal += Math.ceil(Math.sqrt(this.distance(this.positionsW[wh], this.positionsC[customerId])));
+					if (tempsTotal > this.deadline-1) {
+						break;
+					}
+
 					possibleCustomersFull = this.getWarehousePossibleCustomers(dwCourant);
 					orderedCustomers = this.choosenCustomers(dwCourant, possibleCustomersFull);
 					j++;
@@ -202,9 +208,9 @@ class Hashcode2016round1 extends solver.BaseSolver {
 					let groups = _.groupBy(charged);
 
 					tempsTotal += 2 * Object.keys(groups).length;
-					tempsTotal += Math.ceil(Math.sqrt(this.distance(this.positionsW[dwCourant], this.positionsC[customerId])));
+					tempsTotal += 2 * Math.ceil(Math.sqrt(this.distance(this.positionsW[dwCourant], this.positionsC[customerId])));
 
-					if (tempsTotal > this.deadline) {
+					if (tempsTotal > this.deadline-1) {
 						break;
 					}
 
