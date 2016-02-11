@@ -171,6 +171,17 @@ class Hashcode2016round1 extends solver.BaseSolver {
 				let charged = [];
 				chargeCourante = 0;
 				let length = customerItems.length;
+
+				if (length === 0) {
+					let wh = this.getCloserWarehouse(this.positionsC[customerId]);
+					dwCourant = wh;
+					tempsTotal += Math.ceil(Math.sqrt(this.distance(this.positionsW[wh], this.positionsC[customerId])));
+					possibleCustomersFull = this.getWarehousePossibleCustomers(dwCourant);
+					orderedCustomers = this.choosenCustomers(dwCourant, possibleCustomersFull);
+					j++;
+					console.log(i)
+				}
+
 				for (let k=0; k<length; k++) {
 
 					let productId = customerItems[k];
@@ -191,7 +202,7 @@ class Hashcode2016round1 extends solver.BaseSolver {
 					let groups = _.groupBy(charged);
 
 					tempsTotal += 2 * Object.keys(groups).length;
-					tempsTotal += Math.ceil(Math.sqrt(this.distance(this.positionsW[dwCourant], this.positionsC[customerId]))) * 2;
+					tempsTotal += Math.ceil(Math.sqrt(this.distance(this.positionsW[dwCourant], this.positionsC[customerId])));
 
 					if (tempsTotal > this.deadline) {
 						break;
@@ -211,6 +222,20 @@ class Hashcode2016round1 extends solver.BaseSolver {
 
 			tempsTotal = 0;
 		}
+	}
+
+	getCloserWarehouse(position: Array<number>) {
+		let min = 1000000;
+		let warehouse = 0;
+		for (let i=0; i<this.W; i++) {
+			let distance = this.distance(this.positionsW[i], position);
+			if (distance < min) {
+				warehouse = i;
+				min = distance;
+			}
+		}
+
+		return warehouse;
 	}
 
 }
