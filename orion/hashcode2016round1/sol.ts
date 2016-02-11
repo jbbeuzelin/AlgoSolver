@@ -94,6 +94,31 @@ class Hashcode2016round1 extends solver.BaseSolver {
 	distance(pos0: Array<number>, pos1: Array<number>): number {
 		return (pos0[0] - pos1[0]) * (pos0[0] - pos1[0]) + (pos0[1] - pos1[1]) * (pos0[1] - pos1[1]);
 	}
+
+	loadProductsInstructions(products: Array<number>, warehouse: number, drone: number) {
+		let groups = _.groupBy(products);
+
+		_.forEach(groups, g => {
+			this.writer.writeToBuffer(`${drone} L ${warehouse} ${g[0]} ${g.length}`);
+		});
+	}
+
+	unloadProductsInstructions(products: Array<number>, warehouse: number, drone: number) {
+		let groups = _.groupBy(products);
+
+		_.forEach(groups, g => {
+			this.writer.writeToBuffer(`${drone} U ${warehouse} ${g[0]} ${g.length}`);
+		});
+	}
+
+	deliverProduct(drone: number, customerId: number, product: number, numberOfProducts: number) {
+		this.writer.writeToBuffer(`${drone} D ${customerId} ${product} ${numberOfProducts}`);
+	}
+
+	wait(drone: number, time: number) {
+		this.writer.writeToBuffer(`${drone} W ${time}`);
+	}
+
 }
 
 new Hashcode2016round1('practice');
