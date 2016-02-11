@@ -12,19 +12,56 @@ import {helper} from '../../core/Helper';
 
 class Hashcode2016round1 extends solver.BaseSolver {
 
+	public nbRows: number;
+	public nbColumns: number;
+	public nbDrones: number;
+	public deadline: number;
+	public maximumLoad: number;
+
+	public P: number;
+	public productsWeights: Array<number>;
+
+	public W: number;
+	public positionsW: Array<Array<number>>;
+	public productAvailableByW: Array<Array<number>>;
+
+	public C: number;
+	public positionsC: Array<Array<number>>;
+	public numberOfOrderedProductsByC: Array<number>;
+	public orderedProductsByC: Array<Array<number>>;
+
 	constructor(fileName: string) {
 		super(fileName);
 
-		var testCases = _.parseInt(this.reader.nextLine());
-		for(let i=0; i<testCases; i++) {
-			this.solveCase(i);
-		}
+		this.readFile();
 
 		this.writer.writeFile();
 	}
 
-	solveCase(testCase: number): void {
-		this.writer.writeToBuffer(`Case #${testCase+1}: ${testCase}`);
+	readFile(): void {
+		[this.nbRows, this.nbColumns, this.nbDrones, this.deadline, this.maximumLoad] = _.map(this.reader.nextLine().split(' '), _.parseInt);
+
+		this.P = _.parseInt(this.reader.nextLine());
+		this.productsWeights = _.map(this.reader.nextLine().split(' '), _.parseInt);
+
+		this.W = _.parseInt(this.reader.nextLine());
+		this.positionsW = [];
+		this.productAvailableByW = [];
+
+		for (let i=0; i<this.W; i++) {
+			this.positionsW.push(_.map(this.reader.nextLine().split(' '), _.parseInt));
+			this.productAvailableByW.push(_.map(this.reader.nextLine().split(' '), _.parseInt));
+		}
+
+		this.C = _.parseInt(this.reader.nextLine());
+		this.positionsC = [];
+		this.numberOfOrderedProductsByC = [];
+		this.orderedProductsByC = [];
+		for (let i=0; i<this.C; i++) {
+			this.positionsC.push(_.map(this.reader.nextLine().split(' '), _.parseInt));
+			this.numberOfOrderedProductsByC.push(_.parseInt(this.reader.nextLine()));
+			this.orderedProductsByC.push(_.map(this.reader.nextLine().split(' '), _.parseInt));
+		}
 	}
 }
 
