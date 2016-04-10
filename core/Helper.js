@@ -35,4 +35,3 @@ var helper;
     })();
     helper.MathHelper = MathHelper;
 })(helper = exports.helper || (exports.helper = {}));
-//# sourceMappingURL=Helper.js.map

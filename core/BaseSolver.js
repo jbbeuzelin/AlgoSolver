@@ -47,4 +47,3 @@ var solver;
     })();
     solver.BaseSolver = BaseSolver;
 })(solver = exports.solver || (exports.solver = {}));
-//# sourceMappingURL=BaseSolver.js.map

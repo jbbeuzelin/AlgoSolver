@@ -1,12 +1,12 @@
 /// <reference path="../../typings/node/node.d.ts"/>
 /// <reference path="../../typings/lodash/lodash.d.ts"/>
-/// <reference path="../../typings/bigint/bigint.d.ts"/>
+/// <reference path="../../typings/big-integer/big-integer.d.ts"/>
 
 'use strict'
 
 import * as fs from 'fs';
 import * as _ from 'lodash';
-import * as bigint from 'BigInt';
+import * as bigInt from 'big-integer';
 import {solver} from '../../core/BaseSolver';
 import {helper} from '../../core/Helper';
 
