@@ -7,24 +7,25 @@
 import * as fs from 'fs';
 import * as _ from 'lodash';
 import * as bigInt from 'big-integer';
-import {solver} from '../../core/BaseSolver';
-import {helper} from '../../core/Helper';
+import { solver } from '../../bin/core/BaseSolver';
+import { helper } from '../../bin/core/Helper';
 
 class MYCLASS extends solver.BaseSolver {
 
 	constructor(fileName: string) {
 		super(fileName);
 
-		var testCases = _.parseInt(this.reader.nextLine());
-		for(let i=0; i<testCases; i++) {
-			this.solveCase(i);
-		}
+		let testCases = _.parseInt(this.reader.nextLine());
+
+		console.time('Time tacken by solver');
+		_.times(testCases, (i: number) => this.solveCase(i));
+		console.timeEnd('Time tacken by solver');
 
 		this.writer.writeFile();
 	}
 
 	solveCase(testCase: number): void {
-		this.writer.writeToBuffer(`Case #${testCase+1}: ${testCase}`);
+		this.writer.writeToBuffer(`Case #${testCase + 1}: ${testCase}`);
 	}
 }
 

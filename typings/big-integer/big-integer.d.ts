@@ -69,6 +69,8 @@ interface BigInteger {
     pow( number: BigInteger ): BigInteger;
     /** Performs exponentiation. If the exponent is less than 0, pow returns 0. bigInt.zero.pow(0) returns 1. */
     pow( number: string ): BigInteger;
+    
+    isPrime(): boolean;
 
     /** Adds one to the number. */
     next(): BigInteger;

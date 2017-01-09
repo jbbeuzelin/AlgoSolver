@@ -1,5 +1,6 @@
-/// <reference path="../typings/tsd.d.ts"/>
-var fs = require('fs');
+"use strict";
+/// <reference path="../../typings/tsd.d.ts"/>
+var fs = require("fs");
 var solver;
 (function (solver) {
     var Reader = (function () {
@@ -14,7 +15,7 @@ var solver;
             return this.file;
         };
         return Reader;
-    })();
+    }());
     var Writer = (function () {
         function Writer(fileName) {
             this.fileName = fileName;
@@ -33,7 +34,7 @@ var solver;
             });
         };
         return Writer;
-    })();
+    }());
     var BaseSolver = (function () {
         function BaseSolver(inFile, outFile) {
             if (!outFile) {
@@ -44,6 +45,6 @@ var solver;
             this.writer = new Writer(outFile);
         }
         return BaseSolver;
-    })();
+    }());
     solver.BaseSolver = BaseSolver;
 })(solver = exports.solver || (exports.solver = {}));
