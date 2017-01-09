@@ -1,12 +1,6 @@
-/// <reference path="../../typings/node/node.d.ts"/>
-/// <reference path="../../typings/lodash/lodash.d.ts"/>
-/// <reference path="../../typings/big-integer/big-integer.d.ts"/>
-
 'use strict'
 
-import * as fs from 'fs';
 import * as _ from 'lodash';
-import * as bigInt from 'big-integer';
 import { solver } from '../../bin/core/BaseSolver';
 import { helper } from '../../bin/core/Helper';
 
@@ -29,4 +23,4 @@ class MYCLASS extends solver.BaseSolver {
 	}
 }
 
-new MYCLASS('practice');
+new MYCLASS(__dirname + '/practice');

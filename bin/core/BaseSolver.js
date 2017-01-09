@@ -1,5 +1,5 @@
 "use strict";
-/// <reference path="../../typings/tsd.d.ts"/>
+/// <reference path="../../node_modules/@types/node/index.d.ts"/>
 var fs = require("fs");
 var solver;
 (function (solver) {
@@ -48,3 +48,4 @@ var solver;
     }());
     solver.BaseSolver = BaseSolver;
 })(solver = exports.solver || (exports.solver = {}));
+//# sourceMappingURL=BaseSolver.js.map

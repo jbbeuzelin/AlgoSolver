@@ -2,9 +2,12 @@
     "compilerOptions": {
         "target": "ES5",
         "module": "commonjs",
-        "sourceMap": false
+        "sourceMap": false,
+        "typeRoots": [
+            "../../node_modules/@types"
+        ]
     },
-    "files": [
-        "sol.ts"
+	"include": [
+        "**/*.ts"
     ]
 }

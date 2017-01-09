@@ -17,9 +17,6 @@ switch(command) {
 	case 'help':
 		help();
 	break;
-	case 'run':
-		run();
-	break;
 	default:
 	console.log("You need to specify your command. You want to solver create / solver help / solver run ?");
 }
@@ -77,11 +74,11 @@ function create() {
 		});
 	});
 
-	// tsconfig.json
-	copyFile('base/tsconfig.json', 'tsconfig.json');
-
 	// practice.in
 	copyFile('base/practice.in', 'practice.in')
+
+	// tsconfig.json
+	copyFile('base/tsconfig.json', 'tsconfig.json')
 	
 	var vscodePath = path.join(newAlgoProjectDirectoryPath, '.vscode');
 	if (!fs.existsSync(vscodePath)) {
@@ -97,11 +94,6 @@ function create() {
 
 function help() {
 	console.log('Aide à écrire ici !! Oui tout ca est artisanal ;)');
-}
-
-function run() {
-	var projectName = userArgs[1].toLowerCase();
-	exec('cd ' + path.join(dir, projectName) + ' && tsc');
 }
 
 function GetProjectDirectoryPath() {
