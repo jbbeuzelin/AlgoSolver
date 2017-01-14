@@ -1,4 +1,4 @@
-/// <reference path="../typings/tsd.d.ts"/>
+/// <reference path="../../node_modules/@types/node/index.d.ts"/>
 import * as fs from 'fs';
 
 export module solver {

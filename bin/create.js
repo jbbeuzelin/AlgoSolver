@@ -8,7 +8,7 @@ console.log('Bienvenue sur le Peach solver :)');
 
 var userArgs = process.argv.slice(2);
 var command = userArgs[0];
-var dir = 'orion';
+var ALGO_PROJECT_DIRECTORY = 'MyAlgoProject';
 
 switch(command) {
 	case 'create':
@@ -17,9 +17,8 @@ switch(command) {
 	case 'help':
 		help();
 	break;
-	case 'run':
-		run();
-	break;
+	default:
+	console.log("You need to specify your command. You want to solver create / solver help / solver run ?");
 }
 
 function create() {
@@ -31,87 +30,72 @@ function create() {
 	}
 
 	// Dir checks / creations first
-	if (!fs.existsSync(path.join('../', dir))){
-		fs.mkdirSync(path.join('../', dir));
+	var isAlgoProjectDirectoryExist = fs.existsSync(GetProjectDirectoryPath());
+	if (!isAlgoProjectDirectoryExist) {
+		fs.mkdirSync(GetProjectDirectoryPath());
 	}
-	if (!fs.existsSync(path.join('../', dir, projectName))){
-		fs.mkdirSync(path.join('../', dir, projectName));
-	} else {
-		console.log('Projet déjà existant.');
-		return;
+	var newAlgoProjectDirectoryPath = path.join(GetProjectDirectoryPath(), projectName);
+
+	function copyFile(fromExtension, toExtension) {
+		var fromTsconfigPath = path.join(__dirname, fromExtension);
+		var toTsconfigPath = path.join(newAlgoProjectDirectoryPath, toExtension);
+
+		fs.readFile(fromTsconfigPath, 'utf8', function (err, data) {
+			if (err) {
+				return console.log(err);
+			}
+
+			var destPath = path.join(toTsconfigPath);
+			fs.writeFile(destPath, data, function (err) {
+				if (err) return console.log(err);
+			});
+		});
 	}
 
+	var isnewAlgoProjectDirectoryExist = fs.existsSync(newAlgoProjectDirectoryPath);
+	if (isnewAlgoProjectDirectoryExist) {
+		console.log('Projet déjà existant.');
+		return;
+	} 
+
+	fs.mkdirSync(newAlgoProjectDirectoryPath);
+
 	// Sol.ts
-	fs.readFile('./base/sol.ts', 'utf8', function (err, data) {
+	var solutionPath = path.join(__dirname, 'base/sol.ts');
+	fs.readFile(solutionPath, 'utf8', function (err, data) {
 		if (err) {
 			return console.log(err);
 		}
 		var result = data.replace(/MYCLASS/g, projectName.charAt(0).toUpperCase() + projectName.slice(1));
 
-		var destPath = path.join(__dirname, '../', dir, projectName, 'sol.ts');
+		var destPath = path.join(newAlgoProjectDirectoryPath, 'sol.ts');
 		fs.writeFile(destPath, result, function (err) {
 			if (err) return console.log(err);
 		});
 	});
 
-	// tsconfig.json
-	fs.readFile('./base/tsconfig.json', 'utf8', function (err, data) {
-		if (err) {
-			return console.log(err);
-		}
-
-		var destPath = path.join(__dirname, '../', dir, projectName, 'tsconfig.json');
-		fs.writeFile(destPath, data, function (err) {
-			if (err) return console.log(err);
-		});
-	});
-
 	// practice.in
-	fs.readFile('./base/practice.in', 'utf8', function (err, data) {
-		if (err) {
-			return console.log(err);
-		}
+	copyFile('base/practice.in', 'practice.in')
 
-		var destPath = path.join(__dirname, '../', dir, projectName, 'practice.in');
-		fs.writeFile(destPath, data, function (err) {
-			if (err) return console.log(err);
-		});
-	});
+	// tsconfig.json
+	copyFile('base/tsconfig.json', 'tsconfig.json')
 	
-	if (!fs.existsSync(path.join('../', dir, projectName, '.vscode'))){
-			fs.mkdirSync(path.join('../', dir, projectName, '.vscode'));
+	var vscodePath = path.join(newAlgoProjectDirectoryPath, '.vscode');
+	if (!fs.existsSync(vscodePath)) {
+		fs.mkdirSync(vscodePath);
 	}
 	
 	// tasks.json
-	fs.readFile('./base/.vscode/tasks.json', 'utf8', function (err, data) {
-		if (err) {
-			return console.log(err);
-		}
-
-		var destPath = path.join(__dirname, '../', dir, projectName, '.vscode/tasks.json');
-		fs.writeFile(destPath, data, function (err) {
-			if (err) return console.log(err);
-		});
-	});
+	copyFile('base/.vscode/tasks.json', '.vscode/tasks.json');
 	
 	// launch.json
-	fs.readFile('./base/.vscode/launch.json', 'utf8', function (err, data) {
-		if (err) {
-			return console.log(err);
-		}
-
-		var destPath = path.join(__dirname, '../', dir, projectName, '.vscode/launch.json');
-		fs.writeFile(destPath, data, function (err) {
-			if (err) return console.log(err);
-		});
-	});
+	copyFile('./base/.vscode/launch.json', '.vscode/launch.json');
 }
 
 function help() {
 	console.log('Aide à écrire ici !! Oui tout ca est artisanal ;)');
 }
 
-function run() {
-	var projectName = userArgs[1].toLowerCase();
-	exec('cd ' + path.join(dir, projectName) + ' && tsc');
+function GetProjectDirectoryPath() {
+	return path.join(__dirname, '..', ALGO_PROJECT_DIRECTORY);
 }
