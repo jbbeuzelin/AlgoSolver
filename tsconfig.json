@@ -4,11 +4,10 @@
         "module": "commonjs",
         "sourceMap": true,
         "typeRoots": [
-            "../../node_modules/@types"
+            "node_modules/@types"
         ]
     },
 	"include": [
-        "**/*.ts",
-		"../../bin/core"
+        "**/*.ts"
     ]
 }

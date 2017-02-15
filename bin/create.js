@@ -75,10 +75,13 @@ function create() {
 	});
 
 	// practice.in
-	copyFile('base/practice.in', 'practice.in')
+	copyFile('base/practice.in', 'practice.in');
 
 	// tsconfig.json
-	copyFile('base/tsconfig.json', 'tsconfig.json')
+	copyFile('base/tsconfig.json', 'tsconfig.json');
+
+	// webpack.config.js
+	copyFile('base/webpack.config.js', 'webpack.config.js');
 	
 	var vscodePath = path.join(newAlgoProjectDirectoryPath, '.vscode');
 	if (!fs.existsSync(vscodePath)) {
