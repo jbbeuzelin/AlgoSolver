@@ -5,6 +5,7 @@ import { parseInt as _parseInt, times, map as _map } from 'lodash';
 import { BaseSolver } from '../../bin/core/BaseSolver';
 import { MathHelper } from '../../bin/core/Helper';
 
+import { SolverParis } from './solverParis';
 class Hashcode extends BaseSolver {
 
 	constructor(fileName: string) {
@@ -26,7 +27,10 @@ class Hashcode extends BaseSolver {
 			pizza.push(line);
 		});
 
-		this.writer.writeToBuffer(`Case #${testCase + 1}: ${testCase}`);
+		new SolverParis(R, C, L, H).solve(pizza, this.writer);
+
+
+		//this.writer.writeToBuffer(`Case #${testCase + 1}: ${testCase}`);
 	}
 }
 
