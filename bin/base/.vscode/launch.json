@@ -5,7 +5,7 @@
 			"name": "compile",
 			"type": "node",
 			"request": "launch",
-			"program": "${workspaceRoot}/sol.js",
+			"program": "${workspaceRoot}/bundle.js",
 			"stopOnEntry": false,
 			"args": [],
 			"cwd": "${workspaceRoot}",
@@ -18,8 +18,8 @@
 			},
 			"externalConsole": false,
 			"sourceMaps": true,
-			"outDir": null,
-			"preLaunchTask": "tsc"
+			"outDir": "${workspaceRoot}",
+			"preLaunchTask": "webpack dev"
 		},
 		{
 			"name": "Attach",
@@ -27,7 +27,7 @@
 			"request": "attach",
 			"port": 5858,
 			"sourceMaps": true,
-			"outDir": null,
+			"outDir": "${workspaceRoot}",
 			"localRoot": "${workspaceRoot}",
 			"remoteRoot": null
 		}

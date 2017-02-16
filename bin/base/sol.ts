@@ -1,18 +1,19 @@
 'use strict'
 
-import * as _ from 'lodash';
-import { solver } from '../../bin/core/BaseSolver';
-import { helper } from '../../bin/core/Helper';
+import { parseInt as _parseInt, times } from 'lodash';
 
-class MYCLASS extends solver.BaseSolver {
+import { BaseSolver } from '../../bin/core/BaseSolver';
+import { MathHelper } from '../../bin/core/Helper';
+
+class MYCLASS extends BaseSolver {
 
 	constructor(fileName: string) {
 		super(fileName);
 
-		let testCases = _.parseInt(this.reader.nextLine());
+		let testCases = _parseInt(this.reader.nextLine());
 
 		console.time('Time tacken by solver');
-		_.times(testCases, (i: number) => this.solveCase(i));
+		times(testCases, (i: number) => this.solveCase(i));
 		console.timeEnd('Time tacken by solver');
 
 		this.writer.writeFile();
@@ -23,4 +24,4 @@ class MYCLASS extends solver.BaseSolver {
 	}
 }
 
-new MYCLASS(__dirname + '/practice');
+new MYCLASS('./practice');
