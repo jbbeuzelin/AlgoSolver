@@ -20,6 +20,12 @@ class Hashcode extends BaseSolver {
 	solveCase(testCase: number): void {
 		const [ R, C, L, H ] = this.reader.nextLine().split(' ').map(_parseInt);
 
+		const pizza = [];
+		times(R, (l) => {
+			const line = this.reader.nextLine().replace(/[\n\r]+/g, '').split('');
+			pizza.push(line);
+		});
+
 		this.writer.writeToBuffer(`Case #${testCase + 1}: ${testCase}`);
 	}
 }
