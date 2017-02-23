@@ -50,7 +50,9 @@ var Hashcodeofficial = (function (_super) {
         _.times(R, function () {
             var line = _this.reader.nextLine().split(' ').map(_.parseInt);
             var endpoint = _.find(endpoints, function (e) { return e.id === line[1]; });
-            videos.push({ id: line[0], fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]], latencyFromCache: endpoint.latency });
+            if (videoSizes[line[0]] < X) {
+                videos.push({ id: line[0], fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]], latencyFromDbStore: endpoint.latency });
+            }
         });
         endpoints.forEach(function (endpoint) {
             endpoint.videos = _.filter(videos, function (v) { return v.fromEndPoint === endpoint.id; });
@@ -59,21 +61,29 @@ var Hashcodeofficial = (function (_super) {
         var result = [];
         _.each(caches, function (cache) {
             var localVideos = _.flatMap(cache.endpoints, function (e) { return e.videos; });
-            var sVideos = _.map(localVideos, function (v) { return ({ id: v.id, score: v.nbRequests * (1 - v.size / X) * (1 - (cache.latency / v.latencyFromCache)) }); });
+            var sVideos = _.map(localVideos, function (v) {
+                var endpoint = _.find(endpoints, function (e) { return e.id === v.fromEndPoint; });
+                var latency = endpoint.links.find(function (l) { return l.cacheIndex === cache.cacheIndex; }).latency;
+                return ({ id: v.id, weight: v.size, score: (v.nbRequests / v.size) * (1 - (latency / v.latencyFromDbStore)) });
+            });
             var gVideos = _.chain(sVideos)
                 .groupBy(function (v) { return v.id; })
-                .map(function (val, key) { return ({ id: +key, score: _.sum(val.score) }); })
-                .sortBy('score').value();
+                .map(function (val, key) {
+                return ({ id: +key, score: _.sumBy(val, 'score') });
+            })
+                .sortBy(function (v) { return -v.score; }).value();
             // let groupedVideos = _.groupBy(localVideos, v => v.id);
             // let videosWithCount = _.map(groupedVideos, (val, key) => ({ id: +key, nbDownloads: _.sumBy(val, 'nbRequests')}));
             // let sortedVideos = _.sortBy(videosWithCount, v => v.nbDownloads + v.);
             var cacheCapacity = 0;
             var videosOnCache = [];
             var i = 0;
+            console.log('did a cache');
             while (cacheCapacity < X && i < gVideos.length) {
-                var size = _.find(videos, function (v) { return v.id === gVideos[i].id; }).size;
-                if (cacheCapacity + size < X) {
-                    cacheCapacity += size;
+                var video = _.find(videos, function (v) { return v.id === gVideos[i].id; });
+                video.nbRequests /= 2;
+                if (cacheCapacity + video.size < X) {
+                    cacheCapacity += video.size;
                     videosOnCache.push(gVideos[i].id);
                 }
                 i++;

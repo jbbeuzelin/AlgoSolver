@@ -17304,7 +17304,9 @@ var Hashcodeofficial = (function (_super) {
         _.times(R, function () {
             var line = _this.reader.nextLine().split(' ').map(_.parseInt);
             var endpoint = _.find(endpoints, function (e) { return e.id === line[1]; });
-            videos.push({ id: line[0], fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]], latencyFromDbStore: endpoint.latency });
+            if (videoSizes[line[0]] < X) {
+                videos.push({ id: line[0], fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]], latencyFromDbStore: endpoint.latency });
+            }
         });
         endpoints.forEach(function (endpoint) {
             endpoint.videos = _.filter(videos, function (v) { return v.fromEndPoint === endpoint.id; });
@@ -17316,7 +17318,7 @@ var Hashcodeofficial = (function (_super) {
             var sVideos = _.map(localVideos, function (v) {
                 var endpoint = _.find(endpoints, function (e) { return e.id === v.fromEndPoint; });
                 var latency = endpoint.links.find(function (l) { return l.cacheIndex === cache.cacheIndex; }).latency;
-                return ({ id: v.id, score: v.nbRequests * (1 - (latency / v.latencyFromDbStore)) });
+                return ({ id: v.id, weight: v.size, score: v.nbRequests * (1 - (latency / v.latencyFromDbStore)) });
             });
             var gVideos = _.chain(sVideos)
                 .groupBy(function (v) { return v.id; })

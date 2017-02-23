@@ -58,7 +58,9 @@ class Hashcodeofficial extends BaseSolver {
 		_.times(R, () => {
 			let line = this.reader.nextLine().split(' ').map(_.parseInt);
 			let endpoint = _.find(endpoints, e => e.id === line[1]);
-			videos.push({ id: line[0], fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]], latencyFromDbStore: endpoint.latency });
+			if (videoSizes[line[0]] < X) {
+				videos.push({ id: line[0], fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]], latencyFromDbStore: endpoint.latency });
+			}
 		});
 
 		endpoints.forEach(endpoint => {
@@ -77,7 +79,7 @@ class Hashcodeofficial extends BaseSolver {
 				
 				let latency = endpoint.links.find(l => l.cacheIndex === cache.cacheIndex).latency;
 
-				return ({id: v.id, score: v.nbRequests * (1 - (latency / v.latencyFromDbStore ))}) 
+				return ({id: v.id, weight: v.size, score: (v.nbRequests / v.size) * (1 - (latency / v.latencyFromDbStore ))}) 
 			});
 			let gVideos = _.chain(sVideos)
 				.groupBy(v => v.id)
@@ -98,6 +100,7 @@ class Hashcodeofficial extends BaseSolver {
 			console.log('did a cache')
 			while (cacheCapacity < X && i < gVideos.length) {
 				let video = _.find(videos, v => v.id === gVideos[i].id);
+				video.nbRequests /= 2;
 				if (cacheCapacity + video.size < X) {
 					cacheCapacity += video.size;
 					videosOnCache.push(gVideos[i].id)
