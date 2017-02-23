@@ -17305,7 +17305,7 @@ var Hashcodeofficial = (function (_super) {
             var line = _this.reader.nextLine().split(' ').map(_.parseInt);
             var endpoint = _.find(endpoints, function (e) { return e.id === line[1]; });
             if (videoSizes[line[0]] < X) {
-                videos.push({ id: line[0], fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]], latencyFromDbStore: endpoint.latency });
+                videos.push({ id: line[0], divideBy: 1, fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]], latencyFromDbStore: endpoint.latency });
             }
         });
         endpoints.forEach(function (endpoint) {
@@ -17318,12 +17318,13 @@ var Hashcodeofficial = (function (_super) {
             var sVideos = _.map(localVideos, function (v) {
                 var endpoint = _.find(endpoints, function (e) { return e.id === v.fromEndPoint; });
                 var latency = endpoint.links.find(function (l) { return l.cacheIndex === cache.cacheIndex; }).latency;
-                return ({ id: v.id, weight: v.size, score: v.nbRequests * (1 - (latency / v.latencyFromDbStore)) });
+                return ({ id: v.id, divide: v.divideBy, score: (v.nbRequests / v.size) * (1 - (latency / v.latencyFromDbStore)) });
             });
             var gVideos = _.chain(sVideos)
                 .groupBy(function (v) { return v.id; })
                 .map(function (val, key) {
-                return ({ id: +key, score: _.sumBy(val, 'score') });
+                console.log(val[0].divide);
+                return ({ id: +key, score: _.sumBy(val, 'score') / val[0].divide });
             })
                 .sortBy(function (v) { return -v.score; }).value();
             // let groupedVideos = _.groupBy(localVideos, v => v.id);
@@ -17335,6 +17336,7 @@ var Hashcodeofficial = (function (_super) {
             console.log('did a cache');
             while (cacheCapacity < X && i < gVideos.length) {
                 var video = _.find(videos, function (v) { return v.id === gVideos[i].id; });
+                video.divideBy += cache.endpoints.length;
                 if (cacheCapacity + video.size < X) {
                     cacheCapacity += video.size;
                     videosOnCache.push(gVideos[i].id);
