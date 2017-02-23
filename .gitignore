@@ -9,4 +9,6 @@ orion/painting/.vscode/launch.json
 orion/hashcode2016round1/sol.js.map
 orion/hashcode2016round1/sol.js.map
 orion/hashcode2016round1/sol.js.map
-MyAlgoProject/**
+MyAlgoProject/*
+!MyAlgoProject/hashcode/
+!MyAlgoProject/hashcodeofficial/
