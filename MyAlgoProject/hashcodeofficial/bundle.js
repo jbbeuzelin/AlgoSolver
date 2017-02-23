@@ -70,6 +70,61 @@
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+var fs = __webpack_require__(3);
+var Reader = (function () {
+    function Reader(fileName) {
+        this.file = fs.readFileSync(fileName, 'utf8');
+        this.linesArray = this.file.split('\n');
+    }
+    Reader.prototype.nextLine = function () {
+        return this.linesArray.shift();
+    };
+    Reader.prototype.getFile = function () {
+        return this.file;
+    };
+    return Reader;
+}());
+exports.Reader = Reader;
+var Writer = (function () {
+    function Writer(fileName) {
+        this.fileName = fileName;
+        this.buffer = '';
+        // Empty
+    }
+    Writer.prototype.writeToBuffer = function (content, disableAutoLineBreak) {
+        if (disableAutoLineBreak === void 0) { disableAutoLineBreak = false; }
+        this.buffer += "" + content + (disableAutoLineBreak ? '' : '\n');
+    };
+    Writer.prototype.writeFile = function () {
+        fs.writeFile(this.fileName, this.buffer, function (err) {
+            if (err)
+                throw err;
+            console.log('It\'s saved!');
+        });
+    };
+    return Writer;
+}());
+exports.Writer = Writer;
+var BaseSolver = (function () {
+    function BaseSolver(inFile, outFile) {
+        if (!outFile) {
+            outFile = inFile + ".out";
+            inFile += ".in";
+        }
+        this.reader = new Reader(inFile);
+        this.writer = new Writer(outFile);
+    }
+    return BaseSolver;
+}());
+exports.BaseSolver = BaseSolver;
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /* WEBPACK VAR INJECTION */(function(module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
  * @license
  * Lodash <https://lodash.com/>
@@ -17159,61 +17214,6 @@
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)(module)))
 
 /***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var fs = __webpack_require__(3);
-var Reader = (function () {
-    function Reader(fileName) {
-        this.file = fs.readFileSync(fileName, 'utf8');
-        this.linesArray = this.file.split('\n');
-    }
-    Reader.prototype.nextLine = function () {
-        return this.linesArray.shift();
-    };
-    Reader.prototype.getFile = function () {
-        return this.file;
-    };
-    return Reader;
-}());
-exports.Reader = Reader;
-var Writer = (function () {
-    function Writer(fileName) {
-        this.fileName = fileName;
-        this.buffer = '';
-        // Empty
-    }
-    Writer.prototype.writeToBuffer = function (content, disableAutoLineBreak) {
-        if (disableAutoLineBreak === void 0) { disableAutoLineBreak = false; }
-        this.buffer += "" + content + (disableAutoLineBreak ? '' : '\n');
-    };
-    Writer.prototype.writeFile = function () {
-        fs.writeFile(this.fileName, this.buffer, function (err) {
-            if (err)
-                throw err;
-            console.log('It\'s saved!');
-        });
-    };
-    return Writer;
-}());
-exports.Writer = Writer;
-var BaseSolver = (function () {
-    function BaseSolver(inFile, outFile) {
-        if (!outFile) {
-            outFile = inFile + ".out";
-            inFile += ".in";
-        }
-        this.reader = new Reader(inFile);
-        this.writer = new Writer(outFile);
-    }
-    return BaseSolver;
-}());
-exports.BaseSolver = BaseSolver;
-
-
-/***/ }),
 /* 2 */
 /***/ (function(module, exports) {
 
@@ -17258,13 +17258,13 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var _ = __webpack_require__(0);
-var BaseSolver_1 = __webpack_require__(1);
+var _ = __webpack_require__(1);
+var BaseSolver_1 = __webpack_require__(0);
 var Hashcodeofficial = (function (_super) {
     __extends(Hashcodeofficial, _super);
     function Hashcodeofficial(fileName) {
         var _this = _super.call(this, fileName) || this;
-        //let testCases = _.parseInt(this.read(file, lineIndex));
+        //let testCases = _.parseInt(this.reader.nextLine());
         var testCases = 1;
         console.time('Time tacken by solver');
         _.times(testCases, function (i) { return _this.solveCase(i); });
@@ -17278,18 +17278,16 @@ var Hashcodeofficial = (function (_super) {
     };
     Hashcodeofficial.prototype.solveCase = function (testCase) {
         var _this = this;
-        var file = this.reader.getFile().split('\n');
-        var lineIndex = 0;
-        var _a = this.read(file, lineIndex).split(' ').map(_.parseInt), V = _a[0], E = _a[1], R = _a[2], C = _a[3], X = _a[4];
-        var videoSizes = this.read(file, lineIndex).split(' ').map(_.parseInt);
+        var _a = this.reader.nextLine().split(' ').map(_.parseInt), V = _a[0], E = _a[1], R = _a[2], C = _a[3], X = _a[4];
+        var videoSizes = this.reader.nextLine().split(' ').map(_.parseInt);
         var endpoints = [];
         var caches = [];
         _.times(E, function (i) {
-            var line = _this.read(file, lineIndex).split(' ').map(_.parseInt);
+            var line = _this.reader.nextLine().split(' ').map(_.parseInt);
             var endpoint = { id: i, latency: line[0], nbOcCacheServers: line[1], links: [] };
             console.log('parsed a cache');
             _.times(endpoint.nbOcCacheServers, function () {
-                line = _this.read(file, lineIndex).split(' ').map(_.parseInt);
+                line = _this.reader.nextLine().split(' ').map(_.parseInt);
                 endpoint.links.push({ cacheIndex: line[0], latency: line[1] });
                 var existingCache = _.find(caches, function (c) { return c.cacheIndex === line[0]; });
                 if (!!existingCache) {
@@ -17304,8 +17302,9 @@ var Hashcodeofficial = (function (_super) {
         console.log('parsed 1');
         var videos = [];
         _.times(R, function () {
-            var line = _this.read(file, lineIndex).split(' ').map(_.parseInt);
-            videos.push({ id: line[0], fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]] });
+            var line = _this.reader.nextLine().split(' ').map(_.parseInt);
+            var endpoint = _.find(endpoints, function (e) { return e.id === line[1]; });
+            videos.push({ id: line[0], fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]], latencyFromDbStore: endpoint.latency });
         });
         endpoints.forEach(function (endpoint) {
             endpoint.videos = _.filter(videos, function (v) { return v.fromEndPoint === endpoint.id; });
@@ -17314,17 +17313,29 @@ var Hashcodeofficial = (function (_super) {
         var result = [];
         _.each(caches, function (cache) {
             var localVideos = _.flatMap(cache.endpoints, function (e) { return e.videos; });
-            var groupedVideos = _.groupBy(localVideos, function (v) { return v.id; });
-            var videosWithCount = _.map(groupedVideos, function (val, key) { return ({ id: +key, nbDownloads: _.sumBy(val, 'nbRequests') }); });
-            var sortedVideos = _.sortBy(videosWithCount, function (v) { return v.nbDownloads; });
+            var sVideos = _.map(localVideos, function (v) {
+                var endpoint = _.find(endpoints, function (e) { return e.id === v.fromEndPoint; });
+                var latency = endpoint.links.find(function (l) { return l.cacheIndex === cache.cacheIndex; }).latency;
+                return ({ id: v.id, score: v.nbRequests * (1 - (latency / v.latencyFromDbStore)) });
+            });
+            var gVideos = _.chain(sVideos)
+                .groupBy(function (v) { return v.id; })
+                .map(function (val, key) {
+                return ({ id: +key, score: _.sumBy(val, 'score') });
+            })
+                .sortBy(function (v) { return -v.score; }).value();
+            // let groupedVideos = _.groupBy(localVideos, v => v.id);
+            // let videosWithCount = _.map(groupedVideos, (val, key) => ({ id: +key, nbDownloads: _.sumBy(val, 'nbRequests')}));
+            // let sortedVideos = _.sortBy(videosWithCount, v => v.nbDownloads + v.);
             var cacheCapacity = 0;
             var videosOnCache = [];
             var i = 0;
-            while (cacheCapacity < X && i < sortedVideos.length) {
-                var size = _.find(videos, function (v) { return v.id === sortedVideos[i].id; }).size;
-                if (cacheCapacity + size < X) {
-                    cacheCapacity += size;
-                    videosOnCache.push(sortedVideos[i].id);
+            console.log('did a cache');
+            while (cacheCapacity < X && i < gVideos.length) {
+                var video = _.find(videos, function (v) { return v.id === gVideos[i].id; });
+                if (cacheCapacity + video.size < X) {
+                    cacheCapacity += video.size;
+                    videosOnCache.push(gVideos[i].id);
                 }
                 i++;
             }

@@ -10,7 +10,7 @@ class Hashcodeofficial extends BaseSolver {
 	constructor(fileName: string) {
 		super(fileName);
 
-		//let testCases = _.parseInt(this.read(file, lineIndex));
+		//let testCases = _.parseInt(this.reader.nextLine());
 		let testCases = 1;
 
 		console.time('Time tacken by solver');
@@ -25,23 +25,20 @@ class Hashcodeofficial extends BaseSolver {
 		return file[lineIndex - 1];
 	}
 	solveCase(testCase: number): void {
-		const file = this.reader.getFile().split('\n');
-		let lineIndex = 0;
+		const [ V, E, R, C, X ] = this.reader.nextLine().split(' ').map(_.parseInt);
 
-		const [ V, E, R, C, X ] = this.read(file, lineIndex).split(' ').map(_.parseInt);
-
-		const videoSizes = this.read(file, lineIndex).split(' ').map(_.parseInt);
+		const videoSizes = this.reader.nextLine().split(' ').map(_.parseInt);
 
 		let endpoints = [];
 		let caches = [];
 
 		_.times(E, (i) => {
-			let line = this.read(file, lineIndex).split(' ').map(_.parseInt);
+			let line = this.reader.nextLine().split(' ').map(_.parseInt);
 			let endpoint = { id: i, latency: line[0], nbOcCacheServers: line[1], links: [] };
 
 			console.log('parsed a cache')
 			_.times(endpoint.nbOcCacheServers, () => {
-				line = this.read(file, lineIndex).split(' ').map(_.parseInt);
+				line = this.reader.nextLine().split(' ').map(_.parseInt);
 				endpoint.links.push({cacheIndex: line[0], latency: line[1] })
 
 				const existingCache = _.find(caches, c => c.cacheIndex === line[0]);
@@ -59,8 +56,9 @@ class Hashcodeofficial extends BaseSolver {
 		console.log('parsed 1')
 		let videos = []
 		_.times(R, () => {
-			let line = this.read(file, lineIndex).split(' ').map(_.parseInt);
-			videos.push({ id: line[0], fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]] });
+			let line = this.reader.nextLine().split(' ').map(_.parseInt);
+			let endpoint = _.find(endpoints, e => e.id === line[1]);
+			videos.push({ id: line[0], fromEndPoint: line[1], nbRequests: line[2], size: videoSizes[line[0]], latencyFromDbStore: endpoint.latency });
 		});
 
 		endpoints.forEach(endpoint => {
@@ -72,20 +70,37 @@ class Hashcodeofficial extends BaseSolver {
 
 		_.each(caches, cache => {
 			let localVideos = _.flatMap(cache.endpoints, e => e.videos);
-			let groupedVideos = _.groupBy(localVideos, v => v.id);
-			let videosWithCount = _.map(groupedVideos, (val, key) => ({ id: +key, nbDownloads: _.sumBy(val, 'nbRequests')}));
 
-			let sortedVideos = _.sortBy(videosWithCount, v => v.nbDownloads);
+			
+			let sVideos = _.map(localVideos, v => {
+				let endpoint = _.find(endpoints, e => e.id === v.fromEndPoint);
+				
+				let latency = endpoint.links.find(l => l.cacheIndex === cache.cacheIndex).latency;
+
+				return ({id: v.id, score: v.nbRequests * (1 - (latency / v.latencyFromDbStore ))}) 
+			});
+			let gVideos = _.chain(sVideos)
+				.groupBy(v => v.id)
+				.map((val, key) => {
+					return ({id: +key, score: _.sumBy(val, 'score')})
+				})
+				.sortBy(v => -v.score).value();
+
+			// let groupedVideos = _.groupBy(localVideos, v => v.id);
+			// let videosWithCount = _.map(groupedVideos, (val, key) => ({ id: +key, nbDownloads: _.sumBy(val, 'nbRequests')}));
+
+			// let sortedVideos = _.sortBy(videosWithCount, v => v.nbDownloads + v.);
 
 			let cacheCapacity = 0;
 			let videosOnCache = [];
 			let i = 0;
 
-			while (cacheCapacity < X && i < sortedVideos.length) {
-				let size = _.find(videos, v => v.id === sortedVideos[i].id).size;
-				if (cacheCapacity + size < X) {
-					cacheCapacity += size;
-					videosOnCache.push(sortedVideos[i].id)
+			console.log('did a cache')
+			while (cacheCapacity < X && i < gVideos.length) {
+				let video = _.find(videos, v => v.id === gVideos[i].id);
+				if (cacheCapacity + video.size < X) {
+					cacheCapacity += video.size;
+					videosOnCache.push(gVideos[i].id)
 				}
 				i++;
 
