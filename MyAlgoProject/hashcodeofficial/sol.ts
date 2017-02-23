@@ -71,10 +71,10 @@ class Hashcodeofficial extends BaseSolver {
 		let result = [];
 
 		_.each(caches, cache => {
-			let localVideos = _.flatMap(cache.endpoints, e => e.videos);
-
+			let localVideos = _.chain(cache.endpoints).flatMap(e => e.videos).uniqBy('id').value();
+			//let gVideos = _.chain(localVideos).map(v => ({id: v.id})).shuffle().value();
 			
-			let sVideos = _.map(localVideos, v => {
+			/*let sVideos = _.map(localVideos, v => {
 				let endpoint = _.find(endpoints, e => e.id === v.fromEndPoint);
 				
 				let latency = endpoint.links.find(l => l.cacheIndex === cache.cacheIndex).latency;
@@ -84,9 +84,17 @@ class Hashcodeofficial extends BaseSolver {
 			let gVideos = _.chain(sVideos)
 				.groupBy(v => v.id)
 				.map((val, key) => {
-					return ({id: +key, score: 1 }) //_.sumBy(val, 'score') / val[0].divide })
+					return ({id: +key, score: _.sumBy(val, 'score') / val[0].divide })
 				})
-				.shuffle().value();
+				.sortBy(v => v.score).value();*/
+			
+			let gVideos = _.chain(localVideos).map(v => {
+				//let endpoint = _.find(endpoints, e => e.id === v.fromEndPoint);
+				
+				//let latency = endpoint.links.find(l => l.cacheIndex === cache.cacheIndex).latency;
+				v.score = (v.nbRequests / v.size) * (1 - (0 / v.latencyFromDbStore )) / v.divide;
+				return v;
+			}).sortBy(v => -v.score).value();
 
 			// let groupedVideos = _.groupBy(localVideos, v => v.id);
 			// let videosWithCount = _.map(groupedVideos, (val, key) => ({ id: +key, nbDownloads: _.sumBy(val, 'nbRequests')}));
@@ -99,13 +107,13 @@ class Hashcodeofficial extends BaseSolver {
 
 			console.log('did a cache')
 			while (cacheCapacity < X && i < gVideos.length) {
-				let video = _.find(videos, v => v.id === gVideos[i].id);
+				let video = gVideos[i];
 
-				video.divideBy += cache.endpoints.length;
+				video.divideBy *= cache.endpoints.length;
 
 				if (cacheCapacity + video.size < X) {
 					cacheCapacity += video.size;
-					videosOnCache.push(gVideos[i].id)
+					videosOnCache.push(video.id)
 				}
 				i++;
 

@@ -60,19 +60,27 @@ var Hashcodeofficial = (function (_super) {
         console.log('parsed 2');
         var result = [];
         _.each(caches, function (cache) {
-            var localVideos = _.flatMap(cache.endpoints, function (e) { return e.videos; });
-            var sVideos = _.map(localVideos, function (v) {
-                var endpoint = _.find(endpoints, function (e) { return e.id === v.fromEndPoint; });
-                var latency = endpoint.links.find(function (l) { return l.cacheIndex === cache.cacheIndex; }).latency;
-                return ({ id: v.id, divide: v.divideBy, score: (v.nbRequests / v.size) * (1 - (latency / v.latencyFromDbStore)) });
+            var localVideos = _.chain(cache.endpoints).flatMap(function (e) { return e.videos; }).uniqBy('id').value();
+            //let gVideos = _.chain(localVideos).map(v => ({id: v.id})).shuffle().value();
+            /*let sVideos = _.map(localVideos, v => {
+                let endpoint = _.find(endpoints, e => e.id === v.fromEndPoint);
+                
+                let latency = endpoint.links.find(l => l.cacheIndex === cache.cacheIndex).latency;
+
+                return ({id: v.id, divide: v.divideBy, score: (v.nbRequests / v.size) * (1 - (latency / v.latencyFromDbStore ))})
             });
-            var gVideos = _.chain(sVideos)
-                .groupBy(function (v) { return v.id; })
-                .map(function (val, key) {
-                //console.log(val[0].divide)
-                return ({ id: +key, score: val.id });
-            })
-                .sortBy(function (v) { return -v.score; }).value();
+            let gVideos = _.chain(sVideos)
+                .groupBy(v => v.id)
+                .map((val, key) => {
+                    return ({id: +key, score: _.sumBy(val, 'score') / val[0].divide })
+                })
+                .sortBy(v => v.score).value();*/
+            var gVideos = _.chain(localVideos).map(function (v) {
+                //let endpoint = _.find(endpoints, e => e.id === v.fromEndPoint);
+                //let latency = endpoint.links.find(l => l.cacheIndex === cache.cacheIndex).latency;
+                v.score = (v.nbRequests / v.size) * (1 - (0 / v.latencyFromDbStore));
+                return v;
+            }).sortBy(function (v) { return -v.score / v.divide; }).value();
             // let groupedVideos = _.groupBy(localVideos, v => v.id);
             // let videosWithCount = _.map(groupedVideos, (val, key) => ({ id: +key, nbDownloads: _.sumBy(val, 'nbRequests')}));
             // let sortedVideos = _.sortBy(videosWithCount, v => v.nbDownloads + v.);
@@ -81,11 +89,11 @@ var Hashcodeofficial = (function (_super) {
             var i = 0;
             console.log('did a cache');
             while (cacheCapacity < X && i < gVideos.length) {
-                var video = _.find(videos, function (v) { return v.id === gVideos[i].id; });
-                video.divideBy += cache.endpoints.length;
+                var video = gVideos[i];
+                video.divideBy *= cache.endpoints.length;
                 if (cacheCapacity + video.size < X) {
                     cacheCapacity += video.size;
-                    videosOnCache.push(gVideos[i].id);
+                    videosOnCache.push(video.id);
                 }
                 i++;
             }
